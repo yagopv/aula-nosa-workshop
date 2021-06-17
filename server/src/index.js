@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const validators = require("./lib/validators");
 
 const app = express();
 let movies = [];
 
 app.use(bodyParser.json());
+app.use(validators.validatorMiddleware);
 
 app.get("/api/movies", (req, res) => {
   res.status(200).send(movies);
