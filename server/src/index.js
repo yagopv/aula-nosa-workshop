@@ -1,18 +1,23 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
 const validators = require("./lib/validators");
+
+const BASE_URL = "/api";
 
 const app = express();
 let movies = [];
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(validators.validatorMiddleware);
 
-app.get("/api/movies", (req, res) => {
+app.get(`${BASE_URL}/movies`, (req, res) => {
   res.status(200).send(movies);
 });
 
-app.post("/api/movies", (req, res) => {
+app.post(`${BASE_URL}/movies`, (req, res) => {
   const newMovie = req.body;
 
   newMovie.id = uuidv4();
@@ -22,7 +27,7 @@ app.post("/api/movies", (req, res) => {
   res.status(201).send(newMovie);
 });
 
-app.put("/api/movies/:id", (req, res) => {
+app.put(`${BASE_URL}/movies/:id`, (req, res) => {
   movies = movies.map((movie) => {
     if (movie.id === req.params.id) {
       return {
@@ -39,7 +44,7 @@ app.put("/api/movies/:id", (req, res) => {
   res.status(204).send();
 });
 
-app.patch("/api/movies/:id", (req, res) => {
+app.patch(`${BASE_URL}/movies/:id`, (req, res) => {
   movies = movies.map((movie) => {
     if (movie.id === req.params.id) {
       return {
@@ -56,7 +61,7 @@ app.patch("/api/movies/:id", (req, res) => {
   res.status(204).send();
 });
 
-app.delete("/api/movies/:id", (req, res) => {
+app.delete(`${BASE_URL}/movies/:id`, (req, res) => {
   movies = movies.filter((movie) => {
     return movie.id !== req.params.id;
   });
