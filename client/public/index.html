@@ -32,4 +32,9 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
+  <script type="text/javascript">
+    document.querySelectorAll("input, textarea").forEach(element => {
+      element.addEventListener("change", (event) => alert(event.target.value))
+    });
+  </script>
 </html>

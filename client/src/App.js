@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import MovieList from "./components/MovieList";
+import MovieForm from "./components/MovieForm";
+
 const BASE_URL = "http://localhost:3000/api";
 
 function App() {
-  const [movies, setMovies] = React.useState([]);
-  const [title, setTitle] = React.useState("");
-  const [description, setDescription] = React.useState("");
+  const [hasError, setHasError] = useState(false);
+  const [movies, setMovies] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
   React.useEffect(() => {
     fetch(`${BASE_URL}/movies`)
@@ -16,6 +20,17 @@ function App() {
       });
   }, []);
 
+  function handleRemove(id) {
+    fetch(`${BASE_URL}/movies/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    }).then((response) => {
+      if (response.status === 202) {
+        setMovies(movies.filter((movie) => movie.id !== id));
+      }
+    });
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     const newMovie = { title, description };
@@ -25,45 +40,31 @@ function App() {
       body: JSON.stringify(newMovie),
     })
       .then((response) => response.json())
-      .then((data) => console.log(data));
+      .then((data) => {
+        if (data.error) {
+          setHasError(true);
+          return;
+        }
+
+        setHasError(false);
+        setMovies([data, ...movies]);
+        setTitle("");
+        setDescription("");
+      });
   }
 
   return (
     <main>
-      <ul>
-        {movies.map(({ title, description }) => {
-          return (
-            <li>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </li>
-          );
-        })}
-      </ul>
-
+      <MovieList movies={movies} onRemove={handleRemove} />
       <hr />
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-control">
-          <label htmlFor="title">Title</label>
-          <input
-            name="title"
-            type="text"
-            onChange={(event) => setTitle(event.target.value)}
-          />
-        </div>
-        <div className="form-control">
-          <label htmlFor="description">Description</label>
-          <textarea
-            name="description"
-            type="text"
-            onChange={(event) => setDescription(event.target.value)}
-          />
-        </div>
-        <div className="button-container">
-          <button type="submit">Guardar</button>
-        </div>
-      </form>
+      <MovieForm
+        title={title}
+        onChangeTitle={setTitle}
+        description={description}
+        onChangeDescription={setDescription}
+        onSave={handleSubmit}
+        hasError={hasError}
+      />
     </main>
   );
 }
